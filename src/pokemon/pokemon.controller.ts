@@ -3,7 +3,10 @@ import { PokemonService } from './pokemon.service';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('pokemon')
-@ApiResponse({ status: 200, description: 'Successfully retrieved list of Pokemons.' })
+@ApiResponse({
+  status: 200,
+  description: 'Successfully retrieved list of Pokemons.',
+})
 @ApiResponse({ status: 400, description: 'Invalid input.' })
 @Controller('pokemon')
 export class PokemonController {

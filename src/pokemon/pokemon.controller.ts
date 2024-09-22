@@ -24,6 +24,7 @@ export class PokemonController {
     description: 'Offset for pagination',
     example: '1',
   })
+  
   async findAll(
     @Query('limit') limit: string = '100',
     @Query('offset') offset: string = '1',

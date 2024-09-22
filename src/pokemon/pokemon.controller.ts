@@ -4,7 +4,10 @@ import { ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('pokemon')
 @Controller('pokemon')
-@ApiResponse({ status: 200, description: 'Successfully retrieved list of Pokemons.' })
+@ApiResponse({
+  status: 200,
+  description: 'Successfully retrieved list of Pokemons.',
+})
 @ApiResponse({ status: 400, description: 'Invalid input.' })
 export class PokemonController {
   constructor(private readonly pokemonService: PokemonService) {}
@@ -24,7 +27,6 @@ export class PokemonController {
     description: 'Offset for pagination',
     example: '1',
   })
-
   async findAll(
     @Query('limit') limit: string = '100',
     @Query('offset') offset: string = '1',

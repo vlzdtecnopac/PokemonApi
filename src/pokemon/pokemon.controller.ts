@@ -1,8 +1,10 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { PokemonService } from './pokemon.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('pokemon')
+@ApiResponse({ status: 200, description: 'Successfully retrieved list of Pokemons.' })
+@ApiResponse({ status: 400, description: 'Invalid input.' })
 @Controller('pokemon')
 export class PokemonController {
   constructor(private readonly pokemonService: PokemonService) {}

@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { PokemonService } from './pokemon.service';
-import { ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('pokemon')
 @Controller('pokemon')
@@ -24,7 +24,7 @@ export class PokemonController {
     description: 'Offset for pagination',
     example: '1',
   })
-  
+
   async findAll(
     @Query('limit') limit: string = '100',
     @Query('offset') offset: string = '1',

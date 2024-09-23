@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { catchError, firstValueFrom, map, Observable, switchMap } from 'rxjs';
 import axios, { AxiosResponse } from 'axios';
@@ -12,6 +12,7 @@ import {
 
 @Injectable()
 export class PokemonService {
+  private readonly logger = new Logger(PokemonService.name);
   private _url = process.env.POKEMON_API_URL;
 
   constructor(private httpService: HttpService) {}
@@ -39,6 +40,7 @@ export class PokemonService {
         results: response.data.results,
       };
     } catch (error) {
+      this.logger.error(error);
       throw new NotFoundException(`Pokémon List not found.`);
     }
   }
@@ -56,7 +58,8 @@ export class PokemonService {
           types: response.data.types,
         };
       }),
-      catchError(() => {
+      catchError((error) => {
+        this.logger.error(error);
         throw new NotFoundException(`Pokémon ${name} not found.`);
       }),
     );
@@ -71,49 +74,54 @@ export class PokemonService {
       }[];
     }>
   > {
-    const pokemonOne: Observable<{
-      name: string;
-      types: Type[];
-    }> = await this.findOne(name);
+    try {
+      const pokemonOne: Observable<{
+        name: string;
+        types: Type[];
+      }> = await this.findOne(name);
 
-    return pokemonOne.pipe(
-      switchMap(async (pokemon) => {
-        if (!pokemon) {
-          throw new NotFoundException('Pokemon not found');
-        }
+      return pokemonOne.pipe(
+        switchMap(async (pokemon) => {
+          if (!pokemon) {
+            throw new NotFoundException('Pokemon not found');
+          }
 
-        const typesRequests = pokemon.types.map((typeInfo: Type) =>
-          axios.get(typeInfo.type.url).then((typeResponse) => {
-            const translations = typeResponse.data.names;
+          const typesRequests = pokemon.types.map((typeInfo: Type) =>
+            axios.get(typeInfo.type.url).then((typeResponse) => {
+              const translations = typeResponse.data.names;
 
-            const spanishTranslation = translations.find(
-              (t) => t.language.name === LanguageType.es,
-            );
-            const japaneseTranslation = translations.find(
-              (t) => t.language.name === LanguageType.ja,
-            );
+              const spanishTranslation = translations.find(
+                (t) => t.language.name === LanguageType.es,
+              );
+              const japaneseTranslation = translations.find(
+                (t) => t.language.name === LanguageType.ja,
+              );
 
-            return {
-              slot: typeInfo.slot,
-              type: {
-                name: typeInfo.type.name,
-                url: typeInfo.type.url,
-                translations: {
-                  es: spanishTranslation?.name,
-                  ja: japaneseTranslation?.name,
+              return {
+                slot: typeInfo.slot,
+                type: {
+                  name: typeInfo.type.name,
+                  url: typeInfo.type.url,
+                  translations: {
+                    es: spanishTranslation?.name,
+                    ja: japaneseTranslation?.name,
+                  },
                 },
-              },
-            };
-          }),
-        );
+              };
+            }),
+          );
 
-        const types = await Promise.all(typesRequests);
-        return {
-          name: pokemon.name,
-          types,
-        };
-      }),
-      map((response) => response),
-    );
+          const types = await Promise.all(typesRequests);
+          return {
+            name: pokemon.name,
+            types,
+          };
+        }),
+        map((response) => response),
+      );
+    } catch (error) {
+      this.logger.error(error);
+      throw new NotFoundException(`Pokémon List not found.`);
+    }
   }
 }

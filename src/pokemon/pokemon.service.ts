@@ -71,6 +71,7 @@ export class PokemonService {
       }[];
     }>
   > {
+        try {
     const pokemonOne: Observable<{
       name: string;
       types: Type[];
@@ -115,5 +116,8 @@ export class PokemonService {
       }),
       map((response) => response),
     );
+        }catch(error){
+           throw new NotFoundException(`Pokémon List ${name} not found.`);
+    }
   }
 }
